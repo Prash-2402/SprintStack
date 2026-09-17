@@ -15,9 +15,14 @@ export default function ProblemCard({ problem }: ProblemCardProps) {
         {/* Top Badges */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
-            <StatusBadge type="id" label={problem.id} />
+            <StatusBadge type="id" label={problem.displayId || problem.id} />
             <StatusBadge type="category" label="Software" />
           </div>
+          {problem.semester && (
+            <span className="text-[11px] font-bold text-[#404E3B] bg-[#BAC8B1]/30 px-2.5 py-0.5 rounded-full border border-[#BAC8B1]">
+              {problem.semester} {problem.day ? `• ${problem.day}` : ''}
+            </span>
+          )}
         </div>
 
         {/* Title */}

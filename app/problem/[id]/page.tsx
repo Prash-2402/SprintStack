@@ -22,9 +22,14 @@ interface PageProps {
 
 export function generateStaticParams() {
   const { data } = getProblemStatements();
-  return data.map((item) => ({
-    id: item.id,
-  }));
+  const idSet = new Set<string>();
+  data.forEach((item) => {
+    idSet.add(item.id);
+    if (item.displayId) {
+      idSet.add(item.displayId);
+    }
+  });
+  return Array.from(idSet).map((id) => ({ id }));
 }
 
 export default function ProblemDetailPage({ params }: PageProps) {
@@ -34,10 +39,12 @@ export default function ProblemDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Calculate next and previous problem ID
-  const currentNum = parseInt(problem.id.replace(/\D/g, ''), 10);
-  const prevId = currentNum > 1 ? `PS${String(currentNum - 1).padStart(2, '0')}` : null;
-  const nextId = currentNum < 20 ? `PS${String(currentNum + 1).padStart(2, '0')}` : null;
+  // Calculate next and previous problem within the same semester track
+  const { data: allProblems } = getProblemStatements();
+  const sameSemester = allProblems.filter((p) => p.semester === problem.semester);
+  const currentIndex = sameSemester.findIndex((p) => p.id === problem.id);
+  const prevProblem = currentIndex > 0 ? sameSemester[currentIndex - 1] : null;
+  const nextProblem = currentIndex >= 0 && currentIndex < sameSemester.length - 1 ? sameSemester[currentIndex + 1] : null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -51,7 +58,9 @@ export default function ProblemDetailPage({ params }: PageProps) {
           Browse Statements
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-[#BAC8B1]" />
-        <span className="font-semibold text-[#404E3B]">{problem.id}</span>
+        <span className="font-semibold text-[#404E3B]">
+          {problem.semester ? `${problem.semester} • ` : ''}{problem.displayId || problem.id}
+        </span>
       </nav>
 
       {/* Top action bar */}
@@ -61,28 +70,28 @@ export default function ProblemDetailPage({ params }: PageProps) {
           className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[#404E3B] hover:text-[#404E3B] bg-white border border-[#E6E6E6] hover:bg-[#BAC8B1]/15 px-3.5 py-2 rounded-lg shadow-xs transition-colors"
         >
           <ArrowLeft className="w-4 h-4 text-[#7B9669]" />
-          <span>Back to All Statements</span>
+          <span>Back to Statements</span>
         </Link>
 
         {/* Prev / Next navigation + Direct Form Submit */}
         <div className="flex items-center justify-between sm:justify-end gap-2">
-          {prevId && (
+          {prevProblem && (
             <Link
-              href={`/problem/${prevId}`}
+              href={`/problem/${prevProblem.id}`}
               className="inline-flex items-center gap-1 text-xs font-semibold text-[#404E3B] hover:bg-[#BAC8B1]/20 bg-white border border-[#E6E6E6] px-3 py-2 rounded-lg shadow-xs transition-colors"
               title="Previous Problem Statement"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-[#7B9669]" />
-              <span>{prevId}</span>
+              <span>{prevProblem.displayId || prevProblem.id}</span>
             </Link>
           )}
-          {nextId && (
+          {nextProblem && (
             <Link
-              href={`/problem/${nextId}`}
+              href={`/problem/${nextProblem.id}`}
               className="inline-flex items-center gap-1 text-xs font-semibold text-[#404E3B] hover:bg-[#BAC8B1]/20 bg-white border border-[#E6E6E6] px-3 py-2 rounded-lg shadow-xs transition-colors"
               title="Next Problem Statement"
             >
-              <span>{nextId}</span>
+              <span>{nextProblem.displayId || nextProblem.id}</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#7B9669]" />
             </Link>
           )}
@@ -93,7 +102,7 @@ export default function ProblemDetailPage({ params }: PageProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#7B9669] hover:bg-[#404E3B] text-white font-bold text-xs shadow-xs transition-all"
           >
-            <span>Lock In {problem.id}</span>
+            <span>Lock In {problem.displayId || problem.id}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -105,7 +114,12 @@ export default function ProblemDetailPage({ params }: PageProps) {
           {/* Header & Badges */}
           <div>
             <div className="flex flex-wrap items-center gap-2.5 mb-3">
-              <StatusBadge type="id" label={problem.id} className="text-sm px-3 py-1" />
+              <StatusBadge type="id" label={problem.displayId || problem.id} className="text-sm px-3 py-1" />
+              {problem.semester && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#7B9669]/20 text-[#404E3B] border border-[#7B9669]/50">
+                  {problem.semester} {problem.day ? `• ${problem.day}` : ''}
+                </span>
+              )}
               <StatusBadge type="category" label={problem.category} />
               <StatusBadge type="difficulty" label={problem.difficulty} />
               <StatusBadge type="theme" label={problem.theme} />

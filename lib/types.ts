@@ -1,5 +1,8 @@
 export interface ProblemStatement {
   id: string;
+  displayId?: string;
+  semester?: string;
+  day?: string;
   title: string;
   organization: string;
   department: string;

@@ -68,6 +68,23 @@ export default function HomePage() {
               <ExternalLink className="w-4 h-4 text-[#BAC8B1]" />
             </a>
           </div>
+          {/* Quick Track Shortcuts */}
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-xs">
+            <Link
+              href="/browse?sem=3"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[#BAC8B1] border border-white/15 transition-all"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#BAC8B1]"></span>
+              <strong>3rd Sem (Day 1):</strong> PS01–PS20
+            </Link>
+            <Link
+              href="/browse?sem=5"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[#BAC8B1] border border-white/15 transition-all"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7B9669]"></span>
+              <strong>5th Sem (Day 2):</strong> PS01–PS20
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -90,7 +107,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-base font-bold text-[#404E3B]">Pick a Problem Statement</h3>
               <p className="text-xs text-[#6C8480] leading-relaxed">
-                Review the official problem statements. All statements are tailored for pure software solutions.
+                Review the official problem statements partitioned for <strong>3rd Sem (Day 1)</strong> and <strong>5th Sem (Day 2)</strong>. All statements are tailored for pure software solutions.
               </p>
             </div>
 

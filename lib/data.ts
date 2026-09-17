@@ -12,8 +12,20 @@ export function getProblemStatements(): { data: ProblemStatement[]; source: 'sta
 
 export function getProblemStatementById(id: string): ProblemStatement | null {
   const cleanId = id.trim().toUpperCase();
-  const found = allProblemStatements.find((p) => p.id.toUpperCase() === cleanId);
-  return found || null;
+  // 1. Direct match on id (e.g. 3S-PS01, 5S-PS01)
+  let found = allProblemStatements.find((p) => p.id.toUpperCase() === cleanId);
+  if (found) return found;
+
+  // 2. Normalized match (e.g. sem3-ps01, 3-ps01)
+  const alphaNum = cleanId.replace(/[^A-Z0-9]/g, '');
+  found = allProblemStatements.find((p) => p.id.toUpperCase().replace(/[^A-Z0-9]/g, '') === alphaNum);
+  if (found) return found;
+
+  // 3. Fallback match on displayId (e.g. PS01 matches 3S-PS01)
+  found = allProblemStatements.find((p) => (p.displayId || '').toUpperCase() === cleanId);
+  if (found) return found;
+
+  return null;
 }
 
 export function getPortalStats(): StatsSummary {
